@@ -1,8 +1,8 @@
 package load
 
 import (
-	"github.com/micro-in-cn/platform-web/assembly-line/exporters/os/option"
 	"sync"
+	"time"
 
 	"github.com/micro-in-cn/platform-web/assembly-line/exporters/os/modules"
 	"github.com/micro-in-cn/platform-web/assembly-line/protobuf/go/load"
@@ -13,20 +13,45 @@ var (
 )
 
 type Load struct {
-	modules.BaseModule
 	loadClient load.LoadService
+	modules.BaseModule
+	opts *modules.LoadOptions
 }
 
-func (p *Load) Init(opts option.Options) error {
-	p.InitB()
-	p.CollectorName = opts.Collector.Name
-	p.Interval = opts.Load.Interval
-	p.loadClient = load.NewLoadService(p.CollectorName, opts.Collector.Client)
+func (l *Load) Init(opts *modules.Options) {
+	l.opts = opts.Load
+	l.opts.NodeName = opts.NodeName
+	l.opts.IP = opts.IP
+	l.loadClient = load.NewLoadService(opts.Collector.Name, opts.Collector.Client)
+
+	return
+}
+
+func (l *Load) Push() (err error) {
+	err = l.pushAvgStat()
+	return err
+}
+
+func (l *Load) Start() (err error) {
+	go func() {
+		t := time.NewTicker(time.Second * l.Interval())
+		for {
+			select {
+			case <-t.C:
+				if err = l.Push(); err != nil {
+					l.Err <- err
+				}
+			}
+		}
+	}()
 
 	return nil
 }
 
-func (p *Load) Push() (err error) {
-	err = p.pushAvgStat()
-	return err
+func (l *Load) Interval() time.Duration {
+	return l.opts.Interval
+}
+
+func (l *Load) String() string {
+	return "load"
 }

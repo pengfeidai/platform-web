@@ -7,7 +7,7 @@
                     <div>
                         <v-chart
                                 ref="cpuChart"
-                                style="width: 100%;"
+                                style="width: 100%; height: 240px"
                                 :options="cpuLoadLinearOptions"
                                 :autoresize="true"
                         />
@@ -62,19 +62,20 @@
                 x: 0,
             },
             grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
+                left: '1%',
+                right: '1%',
+                bottom: '2%',
                 containLabel: true,
             },
             toolbox: {
                 feature: {},
             },
             xAxis: {
-                type: 'time',
+                type: 'category',
                 splitLine: {
                     show: false,
                 },
+                boundaryGap: false,
             },
             yAxis: {
                 type: 'value',
@@ -137,31 +138,28 @@
                         this.idleData.shift();
                     }
 
+                    let now = new Date();
+                    let xAxisName = this.$xools.getTimeInterval(ct.time, now);
+
+
                     this.systemData.push({
-                        name: ct.time,
-                        value: [ct.time, ((ct.system / total) * 100).toFixed(2)],
+                        name: xAxisName,
+                        value: [xAxisName + 's', ((ct.system / total) * 100).toFixed(2)],
                     });
 
                     this.userData.push({
-                        name: ct.time,
-                        value: [ct.time, ((ct.user / total) * 100).toFixed(2)],
+                        name: xAxisName,
+                        value: [xAxisName + 's', ((ct.user / total) * 100).toFixed(2)],
                     });
 
                     this.idleData.push({
-                        name: ct.time,
-                        value: [ct.time, ((ct.idle / total) * 100).toFixed(2)],
+                        name: xAxisName,
+                        value: [xAxisName + 's', ((ct.idle / total) * 100).toFixed(2)],
                     });
                 });
-                let chart = this.$refs['cpuChart'];
-               /* let systemLast = this.systemData[this.systemData.length - 1].value[1] + '%';
-                let userLast = this.userData[this.userData.length - 1].value[1] + '%';
-                let idleLast = this.idleData[this.idleData.length - 1].value[1] + '%'; */
 
+                let chart = this.$refs['cpuChart'];
                 chart && chart.chart && chart.chart.setOption({
-                    /* legend: {
-                         data: [systemLast, userLast, idleLast],
-                         x: 0,
-                     },*/
                     series: [
                         {
                             //  name: systemLast,

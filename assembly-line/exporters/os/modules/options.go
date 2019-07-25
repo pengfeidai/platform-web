@@ -1,8 +1,9 @@
-package option
+package modules
 
 import (
-	"github.com/micro/go-micro/client"
 	"time"
+
+	"github.com/micro/go-micro/client"
 )
 
 type Options struct {
@@ -17,6 +18,17 @@ type Options struct {
 	Mem        *MemOptions     `json:"mem"`
 	Net        *NetOptions     `json:"net"`
 	Process    *ProcessOptions `json:"process"`
+	IP         string
+	NodeName   string
+}
+
+type ModuleBaseOptions struct {
+	// make modules use Collector easily
+	Collector *Collector    `json:"collector"`
+	Enabled   bool          `json:"enable"`
+	Interval  time.Duration `json:"interval"`
+	IP        string        `json:"ip"`
+	NodeName  string        `json:"nodeName"`
 }
 
 type Collector struct {
@@ -25,45 +37,38 @@ type Collector struct {
 }
 
 type CPUOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type DiskOptions struct {
-	Enabled  bool          `json:"enable"`
-	Paths    []string      `json:"paths"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
+	Paths []string `json:"paths"`
 }
 
 type DockerOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type HostOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type LoadOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type MemOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type NetOptions struct {
-	Enabled  bool          `json:"enable"`
-	Kinds    []string      `json:"kinds"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
+	Kinds  []string `json:"kinds"`
+	Ifaces []string `json:"ifaces"`
 }
 
 type ProcessOptions struct {
-	Enabled  bool          `json:"enable"`
-	Interval time.Duration `json:"interval"`
+	*ModuleBaseOptions
 }
 
 type Option func(*Options)

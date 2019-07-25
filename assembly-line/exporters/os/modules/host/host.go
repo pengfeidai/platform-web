@@ -1,8 +1,8 @@
 package host
 
 import (
-	"github.com/micro-in-cn/platform-web/assembly-line/exporters/os/option"
 	"sync"
+	"time"
 
 	"github.com/micro-in-cn/platform-web/assembly-line/exporters/os/modules"
 	proto "github.com/micro-in-cn/platform-web/assembly-line/protobuf/go/host"
@@ -13,20 +13,45 @@ var (
 )
 
 type Host struct {
-	modules.BaseModule
 	hostClient proto.HostService
+	modules.BaseModule
+	opts *modules.HostOptions
 }
 
-func (p *Host) Init(opts option.Options) error {
-	p.InitB()
-	p.CollectorName = opts.Collector.Name
-	p.Interval = opts.Host.Interval
-	p.hostClient = proto.NewHostService(p.CollectorName, opts.Collector.Client)
+func (h *Host) Init(opts *modules.Options) {
+	h.opts = opts.Host
+	h.opts.NodeName = opts.NodeName
+	h.opts.IP = opts.IP
+	h.hostClient = proto.NewHostService(opts.Collector.Name, opts.Collector.Client)
+
+	return
+}
+
+func (h *Host) Push() (err error) {
+	err = h.pushInfo()
+	return err
+}
+
+func (h *Host) Start() (err error) {
+	go func() {
+		t := time.NewTicker(time.Second * h.Interval())
+		for {
+			select {
+			case <-t.C:
+				if err = h.Push(); err != nil {
+					h.Err <- err
+				}
+			}
+		}
+	}()
 
 	return nil
 }
 
-func (p *Host) Push() (err error) {
-	err = p.pushInfo()
-	return err
+func (h *Host) Interval() time.Duration {
+	return h.opts.Interval
+}
+
+func (h *Host) String() string {
+	return "host"
 }
