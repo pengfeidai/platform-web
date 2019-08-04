@@ -1,19 +1,46 @@
 <template>
     <el-container>
         <el-main style="padding-top: 0px; padding-left: 0px;">
-            <el-card>
-                <div>
-                    <span style="float: right"> {{ lastUpdateTime && ($t('monitor.lastUpdated') + lastUpdateTime.toLocaleTimeString()) }}</span>
+            <el-col :span="7">
+                <el-card>
+                    <el-form style="height: 186px">
+                        <el-form-item label="CPU: ">
+                            <el-select :size="'small'" v-model="cpu" placeholder="CPU" style="width: 70%"
+                                       @change="changeCPU">
+                                <el-option
+                                        v-for="item in cpuOptions"
+                                        :key="item"
+                                        :label="item"
+                                        :value="item">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="System: ">
+                            <span> {{ system }}%</span>
+                        </el-form-item>
+                        <el-form-item label="User: ">
+                            <span> {{ user }}%</span>
+                        </el-form-item>
+                        <el-form-item label="Idle: ">
+                            <span> {{ idle }}%</span>
+                        </el-form-item>
+                    </el-form>
+                </el-card>
+            </el-col>
+            <el-col :span="17">
+                <el-card>
                     <div>
-                        <v-chart
-                                ref="cpuChart"
-                                style="width: 100%; height: 240px"
-                                :options="cpuLoadLinearOptions"
-                                :autoresize="true"
-                        />
+                        <div>
+                            <ve-line
+                                    :height="'186px'"
+                                    :width="'100%'"
+                                    :extend="chartExtend"
+                                    :data="chartData"
+                            ></ve-line>
+                        </div>
                     </div>
-                </div>
-            </el-card>
+                </el-card>
+            </el-col>
         </el-main>
     </el-container>
 </template>
@@ -21,18 +48,10 @@
     import { Component, Prop, Watch } from 'vue-property-decorator';
     import MVue from '@/basic/MVue';
 
-    // @ts-ignore
-    import ECharts from 'vue-echarts';
-    import 'echarts/lib/chart/line';
-    import 'echarts/lib/component/polar';
-    import 'echarts/theme/macarons';
-
     import { CPUTime } from '@/store/modules/os/types';
 
     @Component({
-        components: {
-            'v-chart': ECharts,
-        },
+        components: {},
     })
     export default class CPU extends MVue {
         private lastUpdateTime: Date = null;
@@ -40,151 +59,92 @@
         @Prop()
         private cpuTimes?: [];
 
-        private systemData = [];
-        private userData = [];
-        private idleData = [];
+        private chartData = {
+            columns: ['time', 'system', 'user', 'idle'],
+            rows: [],
+        };
 
-        private cpuLoadLinearOptions = {
-            title: {},
-            tooltip: {
-                trigger: 'axis',
-                formatter: function(params) {
-                    let res = '';
-                    for (let i = 0, l = params.length; i < l; i++) {
-                        res += '<div style="color:' + params[i].color + '">' + params[i].seriesName + ' : ' + params[i].value[1] + '%\</div>';
-                    }
-                    return res;
-                },
-            },
-            color: ['#FF4041', '#00AFF5', '#3B3B3B'],
-            legend: {
-                data: ['System', 'User', 'Idle'],
-                x: 0,
+        private chartExtend = {
+            series: {
+                showSymbol: false,
             },
             grid: {
-                left: '1%',
-                right: '1%',
+                left: '0%',
+                right: '0%',
+                top: '20%',
                 bottom: '2%',
                 containLabel: true,
             },
-            toolbox: {
-                feature: {},
-            },
-            xAxis: {
-                type: 'category',
-                splitLine: {
-                    show: false,
-                },
-                boundaryGap: false,
-            },
-            yAxis: {
-                type: 'value',
-                boundaryGap: [0, '100%'],
-                splitLine: {
-                    show: true,
-                },
-                axisLine: { show: false },
-                axisLabel: { show: false },
-            },
-            series: [
-                {
-                    name: 'System',
-                    type: 'line',
-                    data: this.systemData,
-                },
-                {
-                    name: 'User',
-                    type: 'line',
-                    data: this.userData,
-                },
-                {
-                    name: 'Idle',
-                    type: 'line',
-                    data: this.idleData,
-                },
-            ],
         };
+
+        private system = '';
+        private user = '';
+        private idle = '';
+        private cpu = 'cpu-total';
+        private cpuOptions = [this.cpu];
 
         mounted() {
 
         }
 
-        groupByTime(cpuTimes: CPUTime[]) {
-            let result = [];
-            cpuTimes.reduce(function(res: Map<Date, CPUTime>, ct: CPUTime) {
-                if (!res.get(ct.time)) {
-                    res.set(ct.time, new CPUTime(ct.user, ct.system, ct.idle, ct.time));
-                    result.push(res.get(ct.time));
-                }
-                res.get(ct.time).user += ct.user;
-                res.get(ct.time).system += ct.system;
-                res.get(ct.time).idle += ct.idle;
-                return res;
-            }, new Map<Date, CPUTime>());
-
-            return result;
+        changeCPU(v) {
+            this.cpu = v;
         }
 
+        groupByTime(cpuTimes: CPUTime[]) {
+            let cpuTimesRet = [];
+            cpuTimes.forEach(v => {
+                if (v.cpu == this.cpu) {
+                    cpuTimesRet.push(v);
+                }
+            });
+
+            return cpuTimesRet;
+        }
+
+        collectCPU(cpuTimes: CPUTime[]) {
+            cpuTimes.forEach(item => {
+                if (this.cpuOptions.indexOf(item.cpu) == -1) {
+                    this.cpuOptions.push(item.cpu);
+                }
+            });
+        }
 
         @Watch('cpuTimes', { immediate: true, deep: true })
         asyncData(cpuTimes: CPUTime[]) {
-            if (cpuTimes != null) {
+            if (cpuTimes != null && cpuTimes.length > 0) {
+                this.collectCPU(cpuTimes);
+
                 let cpuTimesShow = this.groupByTime(cpuTimes);
+                this.chartData.rows = [];
+
                 cpuTimesShow.forEach((ct: CPUTime) => {
                     let total = ct.system + ct.user + ct.idle;
-                    if (this.systemData.length > 10) {
-                        this.systemData.shift();
-                        this.userData.shift();
-                        this.idleData.shift();
-                    }
-
                     let now = new Date();
                     let xAxisName = this.$xools.getTimeInterval(ct.time, now);
 
+                    this.system = ((ct.system / total) * 100).toFixed(2);
+                    this.user = ((ct.user / total) * 100).toFixed(2);
+                    this.idle = ((ct.idle / total) * 100).toFixed(2);
 
-                    this.systemData.push({
-                        name: xAxisName,
-                        value: [xAxisName + 's', ((ct.system / total) * 100).toFixed(2)],
+                    this.chartData.rows.push({
+                        'time': xAxisName,
+                        'system': this.system,
+                        'user': this.user,
+                        'idle': this.idle,
                     });
-
-                    this.userData.push({
-                        name: xAxisName,
-                        value: [xAxisName + 's', ((ct.user / total) * 100).toFixed(2)],
-                    });
-
-                    this.idleData.push({
-                        name: xAxisName,
-                        value: [xAxisName + 's', ((ct.idle / total) * 100).toFixed(2)],
-                    });
-                });
-
-                let chart = this.$refs['cpuChart'];
-                chart && chart.chart && chart.chart.setOption({
-                    series: [
-                        {
-                            //  name: systemLast,
-                            data: this.systemData,
-                        },
-                        {
-                            // name: userLast,
-                            data: this.userData,
-                        },
-                        {
-                            //   name: idleLast,
-                            data: this.idleData,
-                        },
-                    ],
                 });
             }
         }
     }
 </script>
 
-< style;
-scoped >
+<style scoped>
+    .el-form-item {
+        margin-bottom: 10px;
+    }
 
-</
-
-style
-
->;
+    .el-card .el-form {
+        overflow: scroll;
+    }
+</style>
