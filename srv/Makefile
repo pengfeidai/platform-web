@@ -2,9 +2,8 @@
 GOPATH:=$(shell go env GOPATH)
 
 .PHONY: build
-build: proto
-
-	go build -o platform-web main.go plugin.go
+build:
+	go build -o platform-web main.go module.go
 
 .PHONY: test
 test:
