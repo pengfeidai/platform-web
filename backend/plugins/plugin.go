@@ -1,4 +1,4 @@
-package plugin
+package plugins
 
 import (
 	"net/http"
@@ -52,11 +52,11 @@ var (
 	modules []Plugin
 )
 
-func Registry(m Plugin) {
+func Register(m Plugin) {
 	modules = append(modules, m)
 }
 
-// Modules returns all of the registered modules
-func Modules() []Plugin {
+// Plugins returns all of the registered modules
+func Plugins() []Plugin {
 	return modules
 }

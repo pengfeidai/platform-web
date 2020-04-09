@@ -1,3 +1,3 @@
-package plugin
+package plugins
 
 type Options struct{}

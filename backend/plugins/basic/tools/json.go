@@ -1,15 +1,14 @@
 package tools
 
-
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/micro-in-cn/platform-web/backend/plugin"
+	"github.com/micro-in-cn/platform-web/backend/plugins"
 )
 
 func WriteJsonData(w http.ResponseWriter, data interface{}) {
-	rsp := &plugin.Rsp{
+	rsp := &plugins.Rsp{
 		Data:    data,
 		Success: true,
 	}
@@ -25,7 +24,7 @@ func WriteJsonData(w http.ResponseWriter, data interface{}) {
 }
 
 func WriteError(w http.ResponseWriter, err error) {
-	rsp := &plugin.Rsp{
+	rsp := &plugins.Rsp{
 		Error:   err.Error(),
 		Success: false,
 	}

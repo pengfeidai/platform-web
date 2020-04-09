@@ -1,14 +1,16 @@
 package basic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/micro/go-micro/v2/metadata"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/micro-in-cn/platform-web/backend-plugins/basic/v1/tools"
+	"github.com/micro-in-cn/platform-web/backend/plugins/basic/tools"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/registry"
@@ -52,7 +54,7 @@ func (api *api) webServices(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(tools.SortedServices{Services: services})
 
-	nosj.WriteJsonData(w, webServices)
+	tools.WriteJsonData(w, webServices)
 
 	return
 }
@@ -80,7 +82,7 @@ func (api *api) services(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(tools.SortedServices{Services: services})
 
-	nosj.WriteJsonData(w, services)
+	tools.WriteJsonData(w, services)
 	return
 }
 
@@ -112,7 +114,7 @@ func (api *api) microServices(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(tools.SortedServices{Services: ret})
 
-	nosj.WriteJsonData(w, ret)
+	tools.WriteJsonData(w, ret)
 	return
 }
 
@@ -141,7 +143,7 @@ func (api *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	nosj.WriteJsonData(w, serviceDetails)
+	tools.WriteJsonData(w, serviceDetails)
 	return
 }
 
@@ -156,11 +158,11 @@ func (api *api) service(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(s) == 0 {
-			nosj.WriteError(w, fmt.Errorf("Service Is Not found %s: ", serviceName))
+			tools.WriteError(w, fmt.Errorf("Service Is Not found %s: ", serviceName))
 			return
 		}
 
-		nosj.WriteJsonData(w, s)
+		tools.WriteJsonData(w, s)
 		return
 	}
 
@@ -181,9 +183,7 @@ func (api *api) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
 	ret := make([]*registry.Service, 0)
 
 	for _, service := range services {
-
 		_, _ = sel.Select(service.Name, func(options *selector.SelectOptions) {
-
 			filter := func(services []*registry.Service) []*registry.Service {
 				for _, s := range services {
 					for _, gwN := range GatewayNamespaces {
@@ -200,9 +200,8 @@ func (api *api) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	nosj.WriteJsonData(w, ret)
+	tools.WriteJsonData(w, ret)
 	return
-
 }
 
 func (api *api) rpc(w http.ResponseWriter, r *http.Request) {
@@ -213,7 +212,7 @@ func (api *api) rpc(w http.ResponseWriter, r *http.Request) {
 	d.UseNumber()
 
 	if err := d.Decode(&rpcReq); err != nil {
-		nosj.WriteError(w, fmt.Errorf("rpc decode err %s: ", err))
+		tools.WriteError(w, fmt.Errorf("rpc decode err %s: ", err))
 		return
 	}
 
@@ -224,7 +223,7 @@ func (api *api) rpc(w http.ResponseWriter, r *http.Request) {
 	rpcReq.timeout, _ = strconv.Atoi(r.Header.Get("Timeout"))
 	rpcReq.URL = r.URL.Path
 
-	rpc(w, helper.RequestToContext(r), rpcReq)
+	rpc(w, requestToContext(r), rpcReq)
 }
 
 func (api *api) health(w http.ResponseWriter, r *http.Request) {
@@ -238,7 +237,7 @@ func (api *api) health(w http.ResponseWriter, r *http.Request) {
 		Address:  r.URL.Query().Get("address"),
 	}
 
-	rpc(w, helper.RequestToContext(r), rpcReq)
+	rpc(w, requestToContext(r), rpcReq)
 }
 
 func (api *api) stats(w http.ResponseWriter, r *http.Request) {
@@ -252,6 +251,15 @@ func (api *api) stats(w http.ResponseWriter, r *http.Request) {
 		Address:  r.URL.Query().Get("address"),
 	}
 
-	rpc(w, helper.RequestToContext(r), rpcReq)
+	rpc(w, requestToContext(r), rpcReq)
 	return
+}
+
+func requestToContext(r *http.Request) context.Context {
+	ctx := context.Background()
+	md := make(metadata.Metadata)
+	for k, v := range r.Header {
+		md[k] = strings.Join(v, ",")
+	}
+	return metadata.NewContext(ctx, md)
 }

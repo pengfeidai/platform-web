@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro-in-cn/platform-web/modules/internal/nosj"
+	"github.com/micro-in-cn/platform-web/backend/plugins/basic/tools"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/errors"
@@ -16,12 +16,12 @@ import (
 
 func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 	if len(rpcReq.Service) == 0 {
-		nosj.WriteError(w, fmt.Errorf("Service Is Not found "))
+		tools.WriteError(w, fmt.Errorf("Service Is Not found "))
 		return
 	}
 
 	if len(rpcReq.Endpoint) == 0 {
-		nosj.WriteError(w, fmt.Errorf("Endpoint Is Not found err "))
+		tools.WriteError(w, fmt.Errorf("Endpoint Is Not found err "))
 		return
 	}
 
@@ -31,7 +31,7 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 		d.UseNumber()
 
 		if err := d.Decode(&rpcReq.Request); err != nil {
-			nosj.WriteError(w, fmt.Errorf("error decoding request string err: %s", err))
+			tools.WriteError(w, fmt.Errorf("error decoding request string err: %s", err))
 			return
 		}
 	}
@@ -76,6 +76,6 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		nosj.WriteJsonData(w, response)
+		tools.WriteJsonData(w, response)
 	}
 }

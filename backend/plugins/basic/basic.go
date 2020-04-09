@@ -1,10 +1,10 @@
 package basic
 
 import (
-	"github.com/micro/cli"
 	"sync"
 
-	"github.com/micro-in-cn/platform-web/modules"
+	"github.com/micro-in-cn/platform-web/backend/plugins"
+	"github.com/micro/cli/v2"
 )
 
 func init() {
@@ -13,7 +13,7 @@ func init() {
 		path: "/b",
 	}
 
-	modules.Registry(m)
+	plugins.Register(m)
 }
 
 var (
@@ -48,58 +48,52 @@ func (m *basicModule) Flags() []cli.Flag {
 	return nil
 }
 
-func (m *basicModule) Handlers() (mp map[string]*modules.Handler) {
-
+func (m *basicModule) Handlers() (mp map[string]*plugins.Handler) {
 	m.Lock()
-	mp = make(map[string]*modules.Handler)
 	defer m.Unlock()
 
-	mp["/services"] = &modules.Handler{
+	mp = make(map[string]*plugins.Handler)
+	mp["/services"] = &plugins.Handler{
 		Func:   m.api.services,
 		Method: []string{"GET"},
 	}
 
-	mp["/micro-services"] = &modules.Handler{
+	mp["/micro-services"] = &plugins.Handler{
 		Func:   m.api.microServices,
 		Method: []string{"GET"},
 	}
 
-	mp["/service"] = &modules.Handler{
+	mp["/service"] = &plugins.Handler{
 		Func:   m.api.service,
 		Method: []string{"GET"},
 	}
 
-	mp["/api-gateway-services"] = &modules.Handler{
+	mp["/api-gateway-services"] = &plugins.Handler{
 		Func:   m.api.apiGatewayServices,
 		Method: []string{"GET"},
 	}
 
-	mp["/service-details"] = &modules.Handler{
+	mp["/service-details"] = &plugins.Handler{
 		Func:   m.api.serviceDetails,
 		Method: []string{"GET"},
 	}
 
-	mp["/stats"] = &modules.Handler{
+	mp["/stats"] = &plugins.Handler{
 		Func:   m.api.stats,
 		Method: []string{"GET"},
 	}
 
-	mp["/api-stats"] = &modules.Handler{
-		Hld:    apiProxy(),
-		Method: []string{"GET"},
-	}
-
-	mp["/web-services"] = &modules.Handler{
+	mp["/web-services"] = &plugins.Handler{
 		Func:   m.api.webServices,
 		Method: []string{"GET"},
 	}
 
-	mp["/rpc"] = &modules.Handler{
+	mp["/rpc"] = &plugins.Handler{
 		Func:   m.api.rpc,
 		Method: []string{"POST"},
 	}
 
-	mp["/health"] = &modules.Handler{
+	mp["/health"] = &plugins.Handler{
 		Func:   m.api.health,
 		Method: []string{"GET"},
 	}
@@ -107,28 +101,29 @@ func (m *basicModule) Handlers() (mp map[string]*modules.Handler) {
 	return
 }
 
-func (m *basicModule) Commands(options ...modules.Option) []cli.Command {
+func (m *basicModule) Commands(options ...plugins.Option) []cli.Command {
 	command := cli.Command{
 		Name:  "web",
 		Usage: "Run the web dashboard",
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			// run(c, options...)
+			return nil
 		},
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the web UI address e.g 0.0.0.0:8082",
-				EnvVar: "MICRO_WEB_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
+				EnvVars: []string{"MICRO_WEB_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "namespace",
-				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
-				EnvVar: "MICRO_WEB_NAMESPACE",
+			&cli.StringFlag{
+				Name:    "namespace",
+				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
+				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 			},
-			cli.StringFlag{
-				Name:   "static_dir",
-				Usage:  "Set the static dir of micro web",
-				EnvVar: "MICRO_WEB_STATIC_DIR",
+			&cli.StringFlag{
+				Name:    "static_dir",
+				Usage:   "Set the static dir of micro web",
+				EnvVars: []string{"MICRO_WEB_STATIC_DIR"},
 			},
 		},
 	}
