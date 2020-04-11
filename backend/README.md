@@ -12,6 +12,5 @@ srv is the backend code directory of platform-web.
 ├── conf          # config files dir, if want
 ├── logs          # default log files dir
 ├── main.go       # entrance
-├── module.go     # modules
-└── webapp        # static dir
+├── plugins.go    # plugins
 ```
