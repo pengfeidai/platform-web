@@ -1,11 +1,13 @@
 package zap
 
 import (
+	"os"
+	"sync"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
 	"path/filepath"
-	"sync"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -122,7 +124,6 @@ func (l *Logger) loadCfg() {
 }
 
 func (l *Logger) setSyncers() {
-
 	f := func(fN string) zapcore.WriteSyncer {
 		return zapcore.AddSync(&lumberjack.Logger{
 			Filename:   l.Opts.LogFileDir + sp + l.Opts.AppName + "-" + fN,

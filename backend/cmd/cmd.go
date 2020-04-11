@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/micro/micro/v2/plugin"
 	"net/http"
 	"net/http/httputil"
 	"regexp"
@@ -12,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro-in-cn/platform-web/backend/internal/proxy"
 	z "github.com/micro-in-cn/platform-web/backend/internal/zap"
+	"github.com/micro-in-cn/platform-web/backend/plugins"
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/config"
@@ -39,30 +39,31 @@ var (
 )
 
 // Init app
-func Init(ops ...plugin.Option) {
+func Init(ops ...plugins.Option) {
 	logger.Info("handler web at ")
 	app := cmd.App()
 	app.Flags = append(app.Flags,
-		cli.StringFlag{
-			Name:   "root_path",
-			Usage:  "Set the root path of micro web",
-			EnvVar: "MICRO_WEB_NAMESPACE",
+		&cli.StringFlag{
+			Name:    "root_path",
+			Usage:   "Set the root path of micro web",
+			EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 		},
-		cli.StringFlag{
-			Name:   "static_dir",
-			Usage:  "Set the static dir of micro web",
-			EnvVar: "MICRO_WEB_STATIC_DIR",
+		&cli.StringFlag{
+			Name:    "static_dir",
+			Usage:   "Set the static dir of micro web",
+			EnvVars: []string{"MICRO_WEB_STATIC_DIR"},
 		},
-		cli.StringFlag{
-			Name:   "config_file",
-			Usage:  "path to config file",
-			EnvVar: "MICRO_WEB_PLATFORM_CONFIG_FILE",
+		&cli.StringFlag{
+			Name:    "config_file",
+			Usage:   "path to config file",
+			EnvVars: []string{"MICRO_WEB_PLATFORM_CONFIG_FILE"},
 		},
 	)
 
-	app.Action = func(c *cli.Context) {
+	app.Action = func(c *cli.Context) error {
 		loadConfig(c)
 		run(c)
+		return nil
 	}
 
 	if err := cmd.Init(cmd.Name(name)); err != nil {
@@ -70,7 +71,7 @@ func Init(ops ...plugin.Option) {
 	}
 }
 
-func run(ctx *cli.Context, srvOpts ...modules.Option) {
+func run(ctx *cli.Context, srvOpts ...plugins.Option) {
 	parseFlags(ctx)
 
 	s := web.NewService(
@@ -118,7 +119,7 @@ func loadConfig(ctx *cli.Context) {
 	if len(ctx.String("config_file")) > 0 {
 		configFile = ctx.String("config_file")
 	}
-	log.Logf("[loadConfig] load config file: %s", configFile)
+	log.Infof("[loadConfig] load config file: %s", configFile)
 
 	if err := config.Load(file.NewSource(file.WithPath(configFile))); err != nil {
 		panic(err)
@@ -127,7 +128,7 @@ func loadConfig(ctx *cli.Context) {
 
 func loadModules(ctx *cli.Context, s web.Service) {
 	// init modules
-	for _, m := range modules.Modules() {
+	for _, m := range plugins.Plugins() {
 		logger.Info("loading module：", zap.Any("module", m.Name()))
 
 		m.Init(ctx)
@@ -148,20 +149,20 @@ func loadModules(ctx *cli.Context, s web.Service) {
 }
 
 func parseFlags(ctx *cli.Context) {
-	if len(ctx.GlobalString("server_name")) > 0 {
-		name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		name = ctx.String("server_name")
 	}
 
-	if len(ctx.GlobalString("server_version")) > 0 {
-		version = ctx.GlobalString("server_version")
+	if len(ctx.String("server_version")) > 0 {
+		version = ctx.String("server_version")
 	}
 
 	if len(ctx.String("namespace")) > 0 {
 		namespace = ctx.String("namespace")
 	}
 
-	if len(ctx.GlobalString("address")) > 0 {
-		version = ctx.GlobalString("address")
+	if len(ctx.String("address")) > 0 {
+		version = ctx.String("address")
 	}
 
 	if len(ctx.String("root_path")) > 0 {
@@ -172,11 +173,11 @@ func parseFlags(ctx *cli.Context) {
 		address = ctx.String("address")
 	}
 
-	if len(ctx.GlobalString("register_ttl")) > 0 {
+	if len(ctx.String("register_ttl")) > 0 {
 		registerTTL = ctx.Duration("register_ttl")
 	}
 
-	if len(ctx.GlobalString("register_interval")) > 0 {
+	if len(ctx.String("register_interval")) > 0 {
 		registerInterval = ctx.Duration("register_interval")
 	}
 }
