@@ -1,19 +1,20 @@
 // https://umijs.org/config/
-import { defineConfig, utils } from 'umi';
+import {defineConfig, utils} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import webpackPlugin from './plugin.config';
-const { winPath } = utils; // preview.pro.ant.design only do not use in your production ;
+
+const {winPath} = utils; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
 
-const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION, REACT_APP_ENV, GA_KEY } = process.env;
+const {ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION, REACT_APP_ENV, GA_KEY} = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
   analytics: GA_KEY
     ? {
-        ga: GA_KEY,
-      }
+      ga: GA_KEY,
+    }
     : false,
   dva: {
     hmr: true,
@@ -74,6 +75,19 @@ export default defineConfig({
           Routes: ['src/pages/Authorized'],
           authority: ['admin', 'user'],
           routes: [
+            {
+              path: '/service',
+              name: 'service',
+              icon: 'service',
+              routes: [
+                {
+                  name: 'service-list',
+                  icon: 'smile',
+                  path: '/service/service-list',
+                  component: './service/service-list',
+                }
+              ],
+            },
             {
               path: '/dashboard',
               name: 'dashboard',

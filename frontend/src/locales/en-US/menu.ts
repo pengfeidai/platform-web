@@ -21,6 +21,8 @@ export default {
   'menu.form.step-form.confirm': 'Step Form(confirm transfer information)',
   'menu.form.step-form.result': 'Step Form(finished)',
   'menu.form.advanced-form': 'Advanced Form',
+  'menu.service': 'List',
+  'menu.service.service-list': 'Services',
   'menu.list': 'List',
   'menu.list.table-list': 'Search Table',
   'menu.list.basic-list': 'Basic List',
