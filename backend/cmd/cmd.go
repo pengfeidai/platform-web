@@ -19,7 +19,6 @@ import (
 	"github.com/micro/go-micro/v2/config/source/file"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/web"
-
 	"go.uber.org/zap"
 )
 
