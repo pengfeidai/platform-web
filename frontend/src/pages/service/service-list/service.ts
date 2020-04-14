@@ -27,8 +27,8 @@ export async function addRule(params: TableListParams) {
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/rule', {
+export async function queryServices(params: TableListParams) {
+  return request('/platform/api/v1/b/services', {
     method: 'POST',
     data: {
       ...params,

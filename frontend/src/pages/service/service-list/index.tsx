@@ -2,7 +2,7 @@ import React from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import ProTable, {ProColumns} from '@ant-design/pro-table';
 import {TableListItem} from './data.d';
-import {queryRule} from './service';
+import {queryServices} from './service';
 
 
 const TableList: React.FC<{}> = () => {
@@ -55,9 +55,8 @@ const TableList: React.FC<{}> = () => {
   return (
     <PageHeaderWrapper>
       <ProTable<TableListItem>
-        toolBarRender={()}
         rowKey="key"
-        request={(params) => queryRule(params)}
+        request={(params) => queryServices(params)}
         columns={columns}
       />
     </PageHeaderWrapper>
