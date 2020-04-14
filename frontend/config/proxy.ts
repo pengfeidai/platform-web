@@ -13,7 +13,7 @@ export default {
       pathRewrite: {'^': ''},
     },
     '/platform': {
-      target: 'localhost',
+      target: 'http://localhost:9082',
       changeOrigin: true,
       pathRewrite: {'^': ''},
     }
