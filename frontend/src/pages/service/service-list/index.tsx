@@ -1,65 +1,87 @@
-import React from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import ProTable, {ProColumns} from '@ant-design/pro-table';
-import {TableListItem} from './data.d';
-import {queryServices} from './service';
+import React, { ReactNode } from 'react';
+import ProTable, { ProColumns } from '@ant-design/pro-table';
+import { PageData } from './data.d';
+import { queryServices } from './service';
+import { Tag } from 'antd';
 
+const renderRow = (value: ReactNode, row: any, idx: number, name: string) => {
+  return (valueI: ReactNode, rowI: any, idxI: number) => {
+    const obj: ReactNode = {
+      children: rowI.nodes[idxI][name],
+      rowSpan: 2,
+      props: {
+        rowSpan: 2,
+      },
+    };
+
+    return obj;
+  };
+};
 
 const TableList: React.FC<{}> = () => {
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<PageData>[] = [
     {
-      title: '命名空间',
+      title: '服务',
       dataIndex: 'name',
     },
     {
-      title: '服务名',
-      dataIndex: 'desc',
+      title: 'id',
+      dataIndex: 'id',
+      render: renderRow,
     },
     {
-      title: '元数据',
-      dataIndex: 'callNo',
-      sorter: true,
-      renderText: (val: string) => `${val} 万`,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      valueEnum: {
-        0: {text: '关闭', status: 'Default'},
-        1: {text: '运行中', status: 'Processing'},
-        2: {text: '已上线', status: 'Success'},
-        3: {text: '异常', status: 'Error'},
+      title: 'address',
+      dataIndex: 'address',
+      render: (value: ReactNode, row: any, idx: number) => {
+        const obj: ReactNode = {
+          children: row.nodes[idx].address,
+          props: {
+            rowSpan: row.nodes.length,
+          },
+        };
+
+        return obj;
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
-      valueType: 'dateTime',
+      title: 'metadata',
+      dataIndex: 'metadata',
+      render: (value: ReactNode, row: any, idx: number) => {
+        const obj: ReactNode = {
+          children: row.nodes[idx].metadata,
+          props: {
+            rowSpan: row.nodes.length,
+          },
+        };
+
+        return obj;
+      },
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => (
-        <>
-          <a href="">
-            配置
-          </a>
-          <a href="">下线</a>
-        </>
-      ),
+      render: (value: ReactNode, row: any) => {
+        const obj: ReactNode = {
+          children: <Tag>delete</Tag>,
+          props: {
+            rowSpan: row.nodes.length,
+          },
+        };
+
+        return obj;
+      },
     },
   ];
 
   return (
-    <PageHeaderWrapper>
-      <ProTable<TableListItem>
-        rowKey="key"
-        request={(params) => queryServices(params)}
-        columns={columns}
-      />
-    </PageHeaderWrapper>
+    <ProTable<PageData>
+      rowKey="key"
+      bordered
+      pagination={false}
+      request={(params: any) => queryServices(params)}
+      columns={columns}
+    />
   );
 };
 

@@ -1,36 +1,23 @@
-export interface TableListItem {
-  key: number;
-  disabled?: boolean;
-  href: string;
-  avatar: string;
+export interface Service {
+  id: string;
   name: string;
-  title: string;
-  owner: string;
-  desc: string;
-  callNo: number;
-  status: number;
-  updatedAt: Date;
-  createdAt: Date;
-  progress: number;
+  nodes: Service[];
+  endpoints: Endpoint[];
+  version: string;
+  metadata: string;
+  address: string;
 }
 
-export interface TableListPagination {
+export interface Endpoint {}
+
+export interface Pagination {
+  service: Service;
   total: number;
   pageSize: number;
   current: number;
 }
 
-export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
-}
-
-export interface TableListParams {
-  sorter?: string;
-  status?: string;
-  name?: string;
-  desc?: string;
-  key?: number;
-  pageSize?: number;
-  currentPage?: number;
+export interface PageData {
+  data: Service[];
+  pagination: Partial<Pagination>;
 }

@@ -10,14 +10,14 @@ import ProLayout, {
   DefaultFooter,
   SettingDrawer,
 } from '@ant-design/pro-layout';
-import React, {useEffect} from 'react';
-import {Link, useIntl, connect, Dispatch} from 'umi';
-import {GithubOutlined} from '@ant-design/icons';
-import {Result, Button} from 'antd';
+import React, { useEffect } from 'react';
+import { Link, useIntl, connect, Dispatch } from 'umi';
+import { GithubOutlined } from '@ant-design/icons';
+import { Result, Button } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import {ConnectState} from '@/models/connect';
-import {getAuthorityFromRouter} from '@/utils/utils';
+import { ConnectState } from '@/models/connect';
+import { getAuthorityFromRouter } from '@/utils/utils';
 import logo from '../assets/logo.svg';
 
 const noMatch = (
@@ -55,13 +55,13 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
 
 const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
   menuList.map((item) => {
-    const localItem = {...item, children: item.children ? menuDataRender(item.children) : []};
+    const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
 const defaultFooterDom = (
   <DefaultFooter
-    copyright="2020 Micro China开源技术出品"
+    copyright="2020 Micro China 开源技术出品"
     links={[
       {
         key: 'Platform Web',
@@ -71,7 +71,7 @@ const defaultFooterDom = (
       },
       {
         key: 'github',
-        title: <GithubOutlined/>,
+        title: <GithubOutlined />,
         href: 'https://github.com/micro-in-cn/platform-web',
         blankTarget: true,
       },
@@ -115,7 +115,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   const authorized = getAuthorityFromRouter(props.route.routes, location.pathname || '/') || {
     authority: undefined,
   };
-  const {formatMessage} = useIntl();
+  const { formatMessage } = useIntl();
   return (
     <>
       <ProLayout
@@ -154,7 +154,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
         }}
         footerRender={() => defaultFooterDom}
         menuDataRender={menuDataRender}
-        rightContentRender={() => <RightContent/>}
+        rightContentRender={() => <RightContent />}
         {...props}
         {...settings}
       >
@@ -175,7 +175,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   );
 };
 
-export default connect(({global, settings}: ConnectState) => ({
+export default connect(({ global, settings }: ConnectState) => ({
   collapsed: global.collapsed,
   settings,
 }))(BasicLayout);
