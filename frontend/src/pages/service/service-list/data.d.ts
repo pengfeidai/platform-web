@@ -1,14 +1,18 @@
 export interface Service {
-  id: string;
   name: string;
-  nodes: Service[];
-  endpoints: Endpoint[];
   version: string;
-  metadata: string;
-  address: string;
+  metadata: Map;
+  endpoints: Endpoint[];
+  nodes: Node[];
 }
 
 export interface Endpoint {}
+
+export interface Node {
+  id: string;
+  address: string;
+  metadata: Map;
+}
 
 export interface Pagination {
   service: Service;
