@@ -1,37 +1,101 @@
-import React from 'react';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
-import { Service, Node } from './data.d';
-import { queryServices } from './service';
-import { Table } from 'antd';
+import React, { FC, useEffect } from 'react';
+import { Col, Input, Layout, Row, Table } from 'antd';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { connect, Dispatch } from 'umi';
+import { Service } from './data.d';
+import { StateServices } from '@/pages/service/service-list/model';
 
-const TableList: React.FC<{}> = () => {
-  const expandedRowRender = (row: Service) => {
-    const columns = [
-      { title: 'ID', dataIndex: 'id', key: 'id' },
-      { title: 'Address', dataIndex: 'address', key: 'address' },
-    ];
+const { Search } = Input;
+const { Header, Content } = Layout;
 
-    return <Table<Node> columns={columns} dataSource={row.nodes} pagination={false} />;
+interface ServicesProps {
+  dispatch: Dispatch<any>;
+  searchServices: StateServices;
+  loading: boolean;
+}
+
+const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list }, loading }) => {
+  useEffect(() => {
+    dispatch({
+      type: 'searchServices/fetch',
+      payload: {
+        name: '',
+      },
+    });
+  }, []);
+
+  const onSearch = (value: string) => {
+    dispatch({
+      type: 'searchServices/fetch',
+      payload: {
+        name: value,
+      },
+    });
   };
 
-  const columns: ProColumns<Service>[] = [
-    {
-      title: '服务',
-      dataIndex: 'name',
-    },
+  const expandedRowRender = (row: any) => {
+    const columns = [
+      { title: 'ID', dataIndex: 'id', key: 'id' },
+      {
+        title: 'address',
+        dataIndex: 'address',
+        key: 'address',
+      },
+      {
+        title: 'metadata',
+        dataIndex: 'metadata',
+        key: 'metadata',
+      },
+    ];
+
+    return <Table columns={columns} dataSource={row.nodes} pagination={false} />;
+  };
+
+  const columns = [
+    { title: 'Name', dataIndex: 'name', key: 'name' },
+    { title: 'Version', dataIndex: 'version', key: 'version' },
   ];
 
   return (
-    <ProTable<Service>
-      rowKey="key"
-      bordered
-      expandedRowRender={expandedRowRender}
-      toolBarRender={false}
-      pagination={false}
-      request={(params: any) => queryServices(params)}
-      columns={columns}
-    />
+    <div>
+      <PageHeaderWrapper>
+        <Header style={{ marginBottom: 23 }}>
+          <Row>
+            <Col sm={8} xs={24}>
+              <Search
+                placeholder="input search text"
+                onSearch={(value) => onSearch(value)}
+                style={{ width: 200 }}
+              />
+            </Col>
+          </Row>
+        </Header>
+        <Content>
+          <Table<Service>
+            rowKey={(row: any) => {
+              return row.name;
+            }}
+            loading={list.length === 0 ? loading : false}
+            columns={columns}
+            expandable={{ expandedRowRender }}
+            dataSource={list}
+            pagination={false}
+          />
+        </Content>
+      </PageHeaderWrapper>
+    </div>
   );
 };
 
-export default TableList;
+export default connect(
+  ({
+    searchServices,
+    loading,
+  }: {
+    searchServices: StateServices;
+    loading: { models: { [key: string]: boolean } };
+  }) => ({
+    searchServices,
+    loading: loading.models.listAndsearchAndarticles,
+  }),
+)(Services);
