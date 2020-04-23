@@ -1,36 +1,42 @@
 import React, { FC, useEffect } from 'react';
-import { Col, Input, Layout, Row, Table } from 'antd';
+import { Input, Button, Layout, Table, Space } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { SearchOutlined } from '@ant-design/icons';
 import { connect, Dispatch } from 'umi';
 import { Service } from './data.d';
 import { StateServices } from '@/pages/service/service-list/model';
 
-const { Search } = Input;
 const { Header, Content } = Layout;
 
 interface ServicesProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   searchServices: StateServices;
   loading: boolean;
 }
 
-const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list }, loading }) => {
-  useEffect(() => {
+const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list, filters }, loading }) => {
+  const onSearch = () => {
     dispatch({
       type: 'searchServices/fetch',
       payload: {
-        name: '',
+        serviceStr: filters.service,
+        nodeStr: filters.node,
       },
     });
+  };
+
+  useEffect(() => {
+    onSearch();
   }, []);
 
-  const onSearch = (value: string) => {
-    dispatch({
-      type: 'searchServices/fetch',
-      payload: {
-        name: value,
-      },
-    });
+  const onServiceChange = (e: any) => {
+    // eslint-disable-next-line no-param-reassign
+    filters.service = e.target.value;
+  };
+
+  const onNodeChange = (e: any) => {
+    // eslint-disable-next-line no-param-reassign
+    filters.node = e.target.value;
   };
 
   const expandedRowRender = (row: any) => {
@@ -60,15 +66,13 @@ const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list }, loadi
     <div>
       <PageHeaderWrapper>
         <Header style={{ marginBottom: 23 }}>
-          <Row>
-            <Col sm={8} xs={24}>
-              <Search
-                placeholder="input search text"
-                onSearch={(value) => onSearch(value)}
-                style={{ width: 200 }}
-              />
-            </Col>
-          </Row>
+          <Space size="small">
+            <Input style={{ width: 200 }} onChange={onServiceChange} placeholder="命名空间" />
+            <Input style={{ width: 200 }} onChange={onNodeChange} placeholder="节点" />
+            <Button icon={<SearchOutlined />} onClick={onSearch}>
+              Search
+            </Button>
+          </Space>
         </Header>
         <Content>
           <Table<Service>
