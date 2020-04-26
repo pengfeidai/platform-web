@@ -74,7 +74,7 @@ const Services: FC<ServicesProps> = ({dispatch, searchServices: {list}, filters:
         </Header>
         <Content>
           <Table<Service>
-            rowKey={(row: any) => {
+            rowKey={(row: Service) => {
               return row.name;
             }}
             loading={list.length === 0 ? loading : false}
