@@ -1,6 +1,6 @@
-import { Effect, Reducer } from 'umi';
-import { Node, Service } from './data.d';
-import { queryServices } from './service';
+import {Effect, Reducer} from 'umi';
+import {Node, Service} from './data.d';
+import {queryServices} from './service';
 
 export class Filters {
   private s!: string;
@@ -19,11 +19,24 @@ export class Filters {
   set node(value: string) {
     this.n = value;
   }
+
+  get service(): string {
+    return this.s
+  }
+
+  get node(): string {
+    return this.n
+  }
+
 }
 
 export interface StateServices {
   list: Service[];
-  filters: Filters;
+}
+
+export interface FiltersState {
+  service: string;
+  node: string;
 }
 
 export interface ModelType {
@@ -79,20 +92,21 @@ const emptyArray = (arr: any[]) => {
   }
 };
 
+// @ts-ignore
+// @ts-ignore
 const Model: ModelType = {
   namespace: 'searchServices',
 
   state: {
     list: [],
-    filters: new Filters('', ''),
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
+    * fetch({payload}, {call, put}) {
       const response = yield call(queryServices, payload);
       const data = Array.isArray(response.data) ? response.data : [];
       // filter locally
-      const { serviceStr, nodeStr } = payload;
+      const {serviceStr, nodeStr} = payload;
       const services: Service[] = filterService(serviceStr, data);
 
       if (nodeStr != null && nodeStr !== '') {
@@ -107,7 +121,7 @@ const Model: ModelType = {
         payload: services,
       });
     },
-    *appendFetch({ payload }, { call, put }) {
+    * appendFetch({payload}, {call, put}) {
       const response = yield call(queryServices, payload);
       yield put({
         type: 'refreshList',
