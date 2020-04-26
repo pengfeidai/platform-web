@@ -85,6 +85,12 @@ export default defineConfig({
                   icon: 'smile',
                   path: '/service/service-list',
                   component: './service/service-list',
+                },
+                {
+                  name: 'call-service',
+                  icon: 'smile',
+                  path: '/service/call-service',
+                  component: './service/call',
                 }
               ],
             },

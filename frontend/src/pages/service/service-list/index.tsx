@@ -14,7 +14,7 @@ interface ServicesProps {
   loading: boolean;
 }
 
-const Services: FC<ServicesProps> = ({dispatch, searchServices: {list}, filters: {}, loading}) => {
+const Services: FC<ServicesProps> = ({dispatch, searchServices: {list, filters}, loading}) => {
   const onSearch = () => {
     dispatch({
       type: 'searchServices/fetch',
@@ -30,11 +30,13 @@ const Services: FC<ServicesProps> = ({dispatch, searchServices: {list}, filters:
   }, []);
 
   const onServiceChange = (e: any) => {
-    filters.service = e.target.value;
+    const obj = filters
+    obj.service = e.target.value;
   };
 
   const onNodeChange = (e: any) => {
-    filters.node = e.target.value;
+    const obj = filters
+    obj.node = e.target.value;
   };
 
   const expandedRowRender = (row: any) => {

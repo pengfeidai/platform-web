@@ -2,36 +2,9 @@ import {Effect, Reducer} from 'umi';
 import {Node, Service} from './data.d';
 import {queryServices} from './service';
 
-export class Filters {
-  private s!: string;
-
-  private n!: string;
-
-  constructor(service: string, node: string) {
-    this.s = service;
-    this.n = node;
-  }
-
-  set service(value: string) {
-    this.s = value;
-  }
-
-  set node(value: string) {
-    this.n = value;
-  }
-
-  get service(): string {
-    return this.s
-  }
-
-  get node(): string {
-    return this.n
-  }
-
-}
-
 export interface StateServices {
   list: Service[];
+  filters: FiltersState;
 }
 
 export interface FiltersState {
@@ -99,6 +72,10 @@ const Model: ModelType = {
 
   state: {
     list: [],
+    filters: {
+      service: "",
+      node: "",
+    },
   },
 
   effects: {
@@ -133,13 +110,13 @@ const Model: ModelType = {
   reducers: {
     queryList(state, action) {
       return {
-        ...state,
+        ...(state as StateServices),
         list: action.payload,
       };
     },
     refreshList(state, action) {
       return {
-        ...state,
+        ...(state as StateServices),
         list: (state as StateServices).list.concat(action.payload),
       };
     },

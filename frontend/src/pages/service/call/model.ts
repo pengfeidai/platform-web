@@ -1,41 +1,27 @@
-import { Effect, Reducer } from 'umi';
-import { Node, Service } from './data.d';
-import { queryServices } from './service';
+import {Effect, Reducer} from 'umi';
+import {Node, Service} from './data.d';
+import {queryServices} from './service';
 
-export class Filters {
-  private s!: string;
-
-  private n!: string;
-
-  constructor(service: string, node: string) {
-    this.s = service;
-    this.n = node;
-  }
-
-  set service(value: string) {
-    this.s = value;
-  }
-
-  set node(value: string) {
-    this.n = value;
-  }
+export interface CallState {
+  list: Service[];
+  filters: FiltersState;
 }
 
-export interface StateServices {
-  list: Service[];
-  filters: Filters;
+export interface FiltersState {
+  service: string;
+  node: string;
 }
 
 export interface ModelType {
   namespace: string;
-  state: StateServices;
+  state: CallState;
   effects: {
     fetch: Effect;
     appendFetch: Effect;
   };
   reducers: {
-    queryList: Reducer<StateServices>;
-    refreshList: Reducer<StateServices>;
+    queryList: Reducer<CallState>;
+    refreshList: Reducer<CallState>;
   };
 }
 
@@ -79,20 +65,25 @@ const emptyArray = (arr: any[]) => {
   }
 };
 
+// @ts-ignore
+// @ts-ignore
 const Model: ModelType = {
-  namespace: 'searchServices',
+  namespace: 'callService',
 
   state: {
     list: [],
-    filters: new Filters('', ''),
+    filters: {
+      service: "",
+      node: "",
+    },
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
+    * fetch({payload}, {call, put}) {
       const response = yield call(queryServices, payload);
       const data = Array.isArray(response.data) ? response.data : [];
       // filter locally
-      const { serviceStr, nodeStr } = payload;
+      const {serviceStr, nodeStr} = payload;
       const services: Service[] = filterService(serviceStr, data);
 
       if (nodeStr != null && nodeStr !== '') {
@@ -107,7 +98,7 @@ const Model: ModelType = {
         payload: services,
       });
     },
-    *appendFetch({ payload }, { call, put }) {
+    * appendFetch({payload}, {call, put}) {
       const response = yield call(queryServices, payload);
       yield put({
         type: 'refreshList',
@@ -119,14 +110,14 @@ const Model: ModelType = {
   reducers: {
     queryList(state, action) {
       return {
-        ...state,
+        ...(state as CallState),
         list: action.payload,
       };
     },
     refreshList(state, action) {
       return {
-        ...state,
-        list: (state as StateServices).list.concat(action.payload),
+        ...(state as CallState),
+        list: (state as CallState).list.concat(action.payload),
       };
     },
   },
