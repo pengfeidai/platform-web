@@ -1,11 +1,13 @@
-import {Card, Col, Input, Row} from 'antd';
+import {Card, Col, Space, Input, Row, Button, Select} from 'antd';
 import React, {Component} from 'react';
 
-import {GridContent} from '@ant-design/pro-layout';
+import {GridContent, PageHeaderWrapper} from '@ant-design/pro-layout';
 import {connect, Dispatch} from 'umi';
 import {RouteChildrenProps} from 'react-router';
 import {ModalState} from './model';
 import {CurrentUser} from "@/pages/account/center/data";
+
+const {TextArea} = Input;
 
 
 interface CallProps extends RouteChildrenProps {
@@ -14,7 +16,6 @@ interface CallProps extends RouteChildrenProps {
 }
 
 interface CallState {
-
 }
 
 
@@ -35,16 +36,31 @@ class Call extends Component<CallProps, CallState> {
 
   render() {
     return (
-      <GridContent>
-        <Row gutter={24}>
-          <Col lg={10} md={24}>
-            <Card bordered={false} style={{marginBottom: 24}}/>
-          </Col>
-          <Col lg={14} md={24}>
-            <Card/>
-          </Col>
-        </Row>
-      </GridContent>
+      <PageHeaderWrapper>
+        <GridContent>
+          <Row gutter={24}>
+            <Col lg={10} md={24}>
+              <Card bordered={false} style={{marginBottom: 24}}>
+                <Space style={{width: "100%"}} size="large" direction="vertical">
+                  <Select placeholder="Service" style={{width: "100%"}}>
+                  </Select>
+                  <Select placeholder="Address" style={{width: "100%"}}>
+                  </Select>
+                  <Select placeholder="Address" style={{width: "100%"}}>
+                  </Select>
+                  <Button>Call</Button>
+                  <TextArea rows={13}></TextArea>
+                </Space>
+              </Card>
+            </Col>
+            <Col lg={14} md={24}>
+              <Card>
+                <TextArea rows={23} readOnly></TextArea>
+              </Card>
+            </Col>
+          </Row>
+        </GridContent>
+      </PageHeaderWrapper>
     );
   }
 }
