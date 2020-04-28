@@ -2,7 +2,7 @@ import {Effect, Reducer} from 'umi';
 import {Node, Service} from './data.d';
 import {queryServices} from './service';
 
-export interface StateServices {
+export interface ServicesState {
   list: Service[];
   filters: FiltersState;
 }
@@ -14,13 +14,13 @@ export interface FiltersState {
 
 export interface ModelType {
   namespace: string;
-  state: StateServices;
+  state: ServicesState;
   effects: {
     fetch: Effect;
   };
   reducers: {
-    queryList: Reducer<StateServices>;
-    refreshList: Reducer<StateServices>;
+    queryList: Reducer<ServicesState>;
+    refreshList: Reducer<ServicesState>;
   };
 }
 
@@ -64,8 +64,6 @@ const emptyArray = (arr: any[]) => {
   }
 };
 
-// @ts-ignore
-// @ts-ignore
 const Model: ModelType = {
   namespace: 'searchServices',
 
@@ -102,14 +100,14 @@ const Model: ModelType = {
   reducers: {
     queryList(state, action) {
       return {
-        ...(state as StateServices),
+        ...(state as ServicesState),
         list: action.payload,
       };
     },
     refreshList(state, action) {
       return {
-        ...(state as StateServices),
-        list: (state as StateServices).list.concat(action.payload),
+        ...(state as ServicesState),
+        list: (state as ServicesState).list.concat(action.payload),
       };
     },
   },

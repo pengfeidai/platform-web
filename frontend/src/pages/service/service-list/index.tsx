@@ -4,17 +4,17 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { SearchOutlined } from '@ant-design/icons';
 import { connect, Dispatch } from 'umi';
 import { Service, Node } from './data.d';
-import { StateServices } from '@/pages/service/service-list/model';
+import { ServicesState } from '@/pages/service/service-list/model';
 
 const { Header, Content } = Layout;
 
 interface ServicesProps {
   dispatch: Dispatch;
-  searchServices: StateServices;
+  serviceState: ServicesState;
   loading: boolean;
 }
 
-const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list, filters }, loading }) => {
+const Services: FC<ServicesProps> = ({ dispatch, serviceState: { list, filters }, loading }) => {
   const onSearch = () => {
     dispatch({
       type: 'searchServices/fetch',
@@ -119,7 +119,7 @@ export default connect(
     searchServices,
     loading,
   }: {
-    searchServices: StateServices;
+    searchServices: ServicesState;
     loading: { models: { [key: string]: boolean } };
   }) => ({
     searchServices,

@@ -4,8 +4,9 @@ import React, {FC, useEffect} from 'react';
 import {GridContent, PageHeaderWrapper} from '@ant-design/pro-layout';
 import {connect, Dispatch} from 'umi';
 import {RouteChildrenProps} from 'react-router';
-import {ModalState, CallState} from './model';
+import {CallState} from './model';
 
+const {Option} = Select;
 const {TextArea} = Input;
 
 
@@ -15,11 +16,10 @@ interface CallProps extends RouteChildrenProps {
   loading: boolean;
 }
 
-
-const Call: FC<CallProps> = ({dispatch, service, currentNode, loading}) => {
+const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
   const onLoad = () => {
     dispatch({
-      type: 'call/fetch',
+      type: 'callService/fetch',
       payload: {},
     });
   };
@@ -37,7 +37,14 @@ const Call: FC<CallProps> = ({dispatch, service, currentNode, loading}) => {
               <Space style={{width: "100%"}} size="large" direction="vertical">
                 <Select placeholder="Service" style={{width: "100%"}}>
                   {
-                    service
+                    (() => {
+                      const {services} = callState
+                      const options: any[] = []
+                      services.forEach(s => {
+                        options.push(<Option value={s.name}>{s.name}</Option>)
+                      })
+                      return options;
+                    })()
                   }
                 </Select>
                 <Select placeholder="Address" style={{width: "100%"}}>
@@ -68,7 +75,7 @@ export default connect(
     loading: { effects: { [key: string]: boolean } };
     callState: CallState;
   }) => ({
-    currentUser: callState,
-    currentUserLoading: loading.effects['call/fetch'],
+    currentUser2: callState,
+    currentUserLoading2: loading.effects['call/fetch'],
   }),
 )(Call);

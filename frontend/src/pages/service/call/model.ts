@@ -2,7 +2,6 @@ import {Effect, Reducer} from 'umi';
 import {Endpoint, Node, Service} from './data.d';
 import {callService, queryServices} from './service';
 
-
 export interface CallState {
   services: Service[];
   nodes: Node[];
@@ -22,8 +21,6 @@ export interface ModelType {
   };
 }
 
-// @ts-ignore
-// @ts-ignore
 const Model: ModelType = {
   namespace: 'callService',
 
