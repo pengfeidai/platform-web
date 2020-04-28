@@ -1,15 +1,12 @@
 import {Effect, Reducer} from 'umi';
-import {Node, Service} from './data.d';
-import {queryServices} from './service';
+import {Endpoint, Node, Service} from './data.d';
+import {callService, queryServices} from './service';
+
 
 export interface CallState {
-  list: Service[];
-  filters: FiltersState;
-}
-
-export interface FiltersState {
-  service: string;
-  node: string;
+  services: Service[];
+  nodes: Node[];
+  endpoints: Endpoint[];
 }
 
 export interface ModelType {
@@ -17,53 +14,13 @@ export interface ModelType {
   state: CallState;
   effects: {
     fetch: Effect;
-    appendFetch: Effect;
+    callService: Effect;
   };
   reducers: {
-    queryList: Reducer<CallState>;
-    refreshList: Reducer<CallState>;
+    queryServices: Reducer<CallState>;
+    callService: Reducer<CallState>;
   };
 }
-
-const filterNode = (filter: string, nodes: Node[]) => {
-  const nodesTemp: Node[] = [];
-  if (filter != null) {
-    nodes.forEach((n: Node) => {
-      if (
-        n.id.indexOf(filter) > 0 ||
-        n.address.indexOf(filter) > 0 ||
-        JSON.stringify(n.metadata).indexOf(filter) > 0
-      ) {
-        nodesTemp.push(n);
-      }
-    });
-
-    return nodesTemp;
-  }
-
-  return nodes;
-};
-
-const filterService = (filter: string, services: Service[]) => {
-  const servicesTemp: Service[] = [];
-  if (filter != null && filter !== '') {
-    services.forEach((item: Service) => {
-      if (item.name.indexOf(filter) > 0) {
-        servicesTemp.push(item);
-      }
-    });
-
-    return servicesTemp;
-  }
-
-  return services;
-};
-
-const emptyArray = (arr: any[]) => {
-  while (arr.length > 0) {
-    arr.pop();
-  }
-};
 
 // @ts-ignore
 // @ts-ignore
@@ -71,53 +28,43 @@ const Model: ModelType = {
   namespace: 'callService',
 
   state: {
-    list: [],
-    filters: {
-      service: "",
-      node: "",
-    },
+    services: [],
+    nodes: [],
+    endpoints: []
   },
 
   effects: {
     * fetch({payload}, {call, put}) {
       const response = yield call(queryServices, payload);
       const data = Array.isArray(response.data) ? response.data : [];
-      // filter locally
-      const {serviceStr, nodeStr} = payload;
-      const services: Service[] = filterService(serviceStr, data);
 
-      if (nodeStr != null && nodeStr !== '') {
-        services.forEach((service: Service) => {
-          emptyArray(service.nodes);
-          service.nodes.push(...filterNode(nodeStr, service.nodes));
-        });
-      }
+      const services: Service[] = data
 
       yield put({
-        type: 'queryList',
+        type: 'queryServices',
         payload: services,
       });
     },
-    * appendFetch({payload}, {call, put}) {
-      const response = yield call(queryServices, payload);
+    * callService({payload}, {call, put}) {
+      const response = yield call(callService, payload);
       yield put({
-        type: 'refreshList',
-        payload: Array.isArray(response.data) ? response.data : [],
+        type: 'callService',
+        payload: response.data,
       });
     },
+
   },
 
   reducers: {
-    queryList(state, action) {
+    queryServices(state, action) {
       return {
         ...(state as CallState),
-        list: action.payload,
+        services: action.payload,
       };
     },
-    refreshList(state, action) {
+    callService(state, action) {
       return {
         ...(state as CallState),
-        list: (state as CallState).list.concat(action.payload),
       };
     },
   },

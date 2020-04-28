@@ -17,7 +17,6 @@ export interface ModelType {
   state: StateServices;
   effects: {
     fetch: Effect;
-    appendFetch: Effect;
   };
   reducers: {
     queryList: Reducer<StateServices>;
@@ -97,14 +96,7 @@ const Model: ModelType = {
         type: 'queryList',
         payload: services,
       });
-    },
-    * appendFetch({payload}, {call, put}) {
-      const response = yield call(queryServices, payload);
-      yield put({
-        type: 'refreshList',
-        payload: Array.isArray(response.data) ? response.data : [],
-      });
-    },
+    }
   },
 
   reducers: {

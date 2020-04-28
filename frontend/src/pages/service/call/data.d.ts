@@ -6,7 +6,8 @@ export interface Service {
   nodes: Node[];
 }
 
-export interface Endpoint {}
+export interface Endpoint {
+}
 
 export interface Node {
   id: string;
@@ -24,4 +25,10 @@ export interface Pagination {
 export interface PageData {
   data: Service[];
   pagination: Partial<Pagination>;
+}
+
+export interface CallParam {
+  service: string;
+  address: string;
+  endpoint: string;
 }

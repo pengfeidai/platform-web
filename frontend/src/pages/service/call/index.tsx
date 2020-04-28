@@ -1,80 +1,74 @@
-import {Card, Col, Space, Input, Row, Button, Select} from 'antd';
-import React, {Component} from 'react';
+import {Button, Card, Col, Input, Row, Select, Space} from 'antd';
+import React, {FC, useEffect} from 'react';
 
 import {GridContent, PageHeaderWrapper} from '@ant-design/pro-layout';
 import {connect, Dispatch} from 'umi';
 import {RouteChildrenProps} from 'react-router';
-import {ModalState} from './model';
-import {CurrentUser} from "@/pages/account/center/data";
+import {ModalState, CallState} from './model';
 
 const {TextArea} = Input;
 
 
 interface CallProps extends RouteChildrenProps {
   dispatch: Dispatch;
-  currentService: Partial<CurrentUser>;
+  callState: CallState;
+  loading: boolean;
 }
 
-interface CallState {
-}
 
-
-class Call extends Component<CallProps, CallState> {
-  state: CallState = {};
-
-  public input: Input | null | undefined = undefined;
-
-  componentDidMount() {
-    const {dispatch} = this.props;
+const Call: FC<CallProps> = ({dispatch, service, currentNode, loading}) => {
+  const onLoad = () => {
     dispatch({
-      type: 'accountAndcenter/fetchCurrent',
+      type: 'call/fetch',
+      payload: {},
     });
-    dispatch({
-      type: 'accountAndcenter/fetch',
-    });
-  }
+  };
 
-  render() {
-    return (
-      <PageHeaderWrapper>
-        <GridContent>
-          <Row gutter={24}>
-            <Col lg={10} md={24}>
-              <Card bordered={false} style={{marginBottom: 24}}>
-                <Space style={{width: "100%"}} size="large" direction="vertical">
-                  <Select placeholder="Service" style={{width: "100%"}}>
-                  </Select>
-                  <Select placeholder="Address" style={{width: "100%"}}>
-                  </Select>
-                  <Select placeholder="Address" style={{width: "100%"}}>
-                  </Select>
-                  <Button>Call</Button>
-                  <TextArea rows={13}></TextArea>
-                </Space>
-              </Card>
-            </Col>
-            <Col lg={14} md={24}>
-              <Card>
-                <TextArea rows={23} readOnly></TextArea>
-              </Card>
-            </Col>
-          </Row>
-        </GridContent>
-      </PageHeaderWrapper>
-    );
-  }
+  useEffect(() => {
+    onLoad();
+  }, []);
+
+  return (
+    <PageHeaderWrapper>
+      <GridContent>
+        <Row gutter={24}>
+          <Col lg={10} md={24}>
+            <Card bordered={false} style={{marginBottom: 24}}>
+              <Space style={{width: "100%"}} size="large" direction="vertical">
+                <Select placeholder="Service" style={{width: "100%"}}>
+                  {
+                    service
+                  }
+                </Select>
+                <Select placeholder="Address" style={{width: "100%"}}>
+                </Select>
+                <Select placeholder="Endpoint" style={{width: "100%"}}>
+                </Select>
+                <Button>Call</Button>
+                <TextArea rows={13}></TextArea>
+              </Space>
+            </Card>
+          </Col>
+          <Col lg={14} md={24}>
+            <Card>
+              <TextArea rows={23} readOnly></TextArea>
+            </Card>
+          </Col>
+        </Row>
+      </GridContent>
+    </PageHeaderWrapper>
+  );
 }
-
 
 export default connect(
   ({
      loading,
-     callService,
+     callState,
    }: {
     loading: { effects: { [key: string]: boolean } };
-    callService: ModalState;
+    callState: CallState;
   }) => ({
-    currentUser: callService.currentUser,
-    currentUserLoading: loading.effects['accountAndcenter/fetchCurrent'],
+    currentUser: callState,
+    currentUserLoading: loading.effects['call/fetch'],
   }),
 )(Call);
