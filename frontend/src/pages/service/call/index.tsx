@@ -17,11 +17,18 @@ interface CallProps extends RouteChildrenProps {
 }
 
 const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
+  const options: any = []
   const onLoad = () => {
     dispatch({
       type: 'callService/fetch',
       payload: {},
     });
+  };
+  const rendererService = () => {
+    const {services} = callState
+    services.forEach(s => {
+      options.push(<Option value={s.name}>{s.name}</Option>)
+    })
   };
 
   useEffect(() => {
@@ -37,14 +44,7 @@ const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
               <Space style={{width: "100%"}} size="large" direction="vertical">
                 <Select placeholder="Service" style={{width: "100%"}}>
                   {
-                    (() => {
-                      const {services} = callState
-                      const options: any[] = []
-                      services.forEach(s => {
-                        options.push(<Option value={s.name}>{s.name}</Option>)
-                      })
-                      return options;
-                    })()
+                    options
                   }
                 </Select>
                 <Select placeholder="Address" style={{width: "100%"}}>
@@ -75,7 +75,7 @@ export default connect(
     loading: { effects: { [key: string]: boolean } };
     callState: CallState;
   }) => ({
-    currentUser2: callState,
-    currentUserLoading2: loading.effects['call/fetch'],
+    callState,
+    loading: loading.effects['call/fetch'],
   }),
 )(Call);

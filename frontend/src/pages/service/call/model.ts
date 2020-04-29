@@ -54,6 +54,7 @@ const Model: ModelType = {
 
   reducers: {
     queryServices(state, action) {
+      debugger
       return {
         ...(state as CallState),
         services: action.payload,
