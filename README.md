@@ -2,6 +2,45 @@
 
 Go-Micro微服务治理、监控平台
 
+## 运行（开发阶段）
+
+1. 运行后台
+
+切到[backend](./backend)目录
+
+Mac/Linux
+
+```bash
+# 打开gomod
+go env -w GO111MODULE=on
+# 设置代理源
+go env -w GOPROXY=https://goproxy.cn,direct
+# 运行
+go run main.go plugins.go
+```
+
+Windows
+
+```bash
+$env:GO111MODULE = "on"
+$env:GOPROXY = "https://goproxy.cn"
+
+go run main.go plugins.go
+```
+
+2. 运行前端
+
+1. 运行后台
+
+切到[frontend](./frontend)目录
+
+```bash
+# 第一次需执行安装
+npm install
+# 运行
+npm start
+```
+
 ## 特性
 
 进行中：服务列表
