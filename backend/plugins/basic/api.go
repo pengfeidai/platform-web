@@ -77,7 +77,9 @@ func (api *api) services(w http.ResponseWriter, r *http.Request) {
 
 		for _, s := range ss {
 			service.Nodes = append(service.Nodes, s.Nodes...)
+			service.Endpoints = s.Endpoints
 		}
+
 	}
 
 	sort.Sort(tools.SortedServices{Services: services})
