@@ -10,11 +10,11 @@ const { Header, Content } = Layout;
 
 interface ServicesProps {
   dispatch: Dispatch;
-  serviceState: ServicesState;
+  searchServices: ServicesState;
   loading: boolean;
 }
 
-const Services: FC<ServicesProps> = ({ dispatch, serviceState: { list, filters }, loading }) => {
+const Services: FC<ServicesProps> = ({ dispatch, searchServices: { list, filters }, loading }) => {
   const onSearch = () => {
     dispatch({
       type: 'searchServices/fetch',

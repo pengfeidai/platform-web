@@ -24,12 +24,6 @@ const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
       payload: {},
     });
   };
-  const rendererService = () => {
-    const {services} = callState
-    services.forEach(s => {
-      options.push(<Option value={s.name}>{s.name}</Option>)
-    })
-  };
 
   useEffect(() => {
     onLoad();

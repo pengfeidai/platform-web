@@ -20,7 +20,6 @@ export interface ModelType {
   };
   reducers: {
     queryList: Reducer<ServicesState>;
-    refreshList: Reducer<ServicesState>;
   };
 }
 
@@ -64,6 +63,8 @@ const emptyArray = (arr: any[]) => {
   }
 };
 
+// @ts-ignore
+// @ts-ignore
 const Model: ModelType = {
   namespace: 'searchServices',
 
@@ -102,12 +103,6 @@ const Model: ModelType = {
       return {
         ...(state as ServicesState),
         list: action.payload,
-      };
-    },
-    refreshList(state, action) {
-      return {
-        ...(state as ServicesState),
-        list: (state as ServicesState).list.concat(action.payload),
       };
     },
   },
