@@ -12,12 +12,11 @@ const {TextArea} = Input;
 
 interface CallProps extends RouteChildrenProps {
   dispatch: Dispatch;
-  callState: CallState;
+  callService: CallState;
   loading: boolean;
 }
 
-const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
-  const options: any = []
+const Call: FC<CallProps> = ({dispatch, callService, loading}) => {
   const onLoad = () => {
     dispatch({
       type: 'callService/fetch',
@@ -38,7 +37,14 @@ const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
               <Space style={{width: "100%"}} size="large" direction="vertical">
                 <Select placeholder="Service" style={{width: "100%"}}>
                   {
-                    options
+                    (() => {
+                      const {services} = callService
+                      const opts: JSX.Element[] = []
+                      services.forEach(s => {
+                        opts.push(<Option value={s.name}>{s.name}</Option>)
+                      })
+                      return opts;
+                    })()
                   }
                 </Select>
                 <Select placeholder="Address" style={{width: "100%"}}>
@@ -64,12 +70,12 @@ const Call: FC<CallProps> = ({dispatch, callState, loading}) => {
 export default connect(
   ({
      loading,
-     callState,
+     callService,
    }: {
     loading: { effects: { [key: string]: boolean } };
-    callState: CallState;
+    callService: CallState;
   }) => ({
-    callState,
+    callService,
     loading: loading.effects['call/fetch'],
   }),
 )(Call);
