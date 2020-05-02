@@ -1,4 +1,4 @@
-import {Effect, Reducer} from 'umi';
+import {Effect, Reducer, Subscription} from 'umi';
 import {Endpoint, Node, Service} from './data.d';
 import {callService, queryServices} from './service';
 
@@ -11,6 +11,7 @@ export interface CallState {
 export interface ModelType {
   namespace: string;
   state: CallState;
+  subscriptions: { setup: Subscription };
   effects: {
     fetch: Effect;
     callService: Effect;
@@ -28,6 +29,19 @@ const Model: ModelType = {
     services: [],
     nodes: [],
     endpoints: []
+  },
+
+  subscriptions: {
+    setupHistory ({ dispatch, history }) {
+      history.listen((location:any) => {
+        if(location.pathname === '/service/call-service'){
+          dispatch({
+            type: 'fetch',
+            payload: {},
+          });
+        }
+      })
+    },
   },
 
   effects: {
@@ -54,7 +68,6 @@ const Model: ModelType = {
 
   reducers: {
     queryServices(state, action) {
-      debugger
       return {
         ...(state as CallState),
         services: action.payload,

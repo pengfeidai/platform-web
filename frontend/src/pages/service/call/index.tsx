@@ -1,12 +1,13 @@
-import {Button, Card, Col, Input, Row, Select, Space} from 'antd';
-import React, {FC, useEffect} from 'react';
+import {Card, Col, Input, Row, Space} from 'antd';
+import React, {FC, useState, useMemo, useRef } from 'react';
 
 import {GridContent, PageHeaderWrapper} from '@ant-design/pro-layout';
 import {connect, Dispatch} from 'umi';
 import {RouteChildrenProps} from 'react-router';
 import {CallState} from './model';
+import Forms from '../../../components/Forms';
 
-const {Option} = Select;
+
 const {TextArea} = Input;
 
 
@@ -16,17 +17,76 @@ interface CallProps extends RouteChildrenProps {
   loading: boolean;
 }
 
-const Call: FC<CallProps> = ({dispatch, callService, loading}) => {
-  const onLoad = () => {
-    dispatch({
-      type: 'callService/fetch',
-      payload: {},
-    });
-  };
 
-  useEffect(() => {
-    onLoad();
-  }, []);
+
+const Call: FC<CallProps> = ({ dispatch ,callService }) => {
+  const [addOpt,setAddOpt]: Array<any> = useState([])
+  const [endpointOpt,setEndpointOpt]: Array<any> = useState([])
+  const { services }: any = callService
+  let formRef:object = useRef(null)
+  const serviceOptions: Array<any> = useMemo(()=>{
+    let list: Array<object> = []
+    if(services && services.length){
+      list = services.map((item:object)=>({value:item.name,label:item.name}))
+    }
+    return list
+  },[services])
+
+  //console.log(serviceOptions)
+
+
+
+
+  const formOption: any = ()=>[
+    {
+      formType:'select',
+      name:'Service',
+      options:serviceOptions,
+      placeholder:'Service',
+      onChange:(val:any)=>{
+        if(val){
+          let selectItem: object = services.find((v:object)=>v.name===val)
+          let addOpt: Array<any> = selectItem.nodes.map((v:object)=>({value:v.address,label:v.address}))
+          let endpointOpt: Array<any> = selectItem.endpoints.map((v:object)=>({value:v.name,label:v.name,request:v.request}))
+          setAddOpt(addOpt)
+          setEndpointOpt(endpointOpt)
+        }
+
+      }
+    },
+    {
+      formType:'select',
+      name:'Address',
+      options:addOpt,
+      placeholder:'Address'
+    },
+    {
+      formType:'select',
+      name:'Endpoint',
+      options:endpointOpt,
+      placeholder:'Endpoint',
+      onChange:(val:any)=>{
+        if(val){
+          let request:any = endpointOpt.find((v:object)=>v.value===val).request
+          formRef.current.setFieldsValue({request:'111'})
+        }
+
+      }
+    },
+    {
+      formType:'textarea',
+      name:'request',
+    },
+    {
+      formType:'button',
+      label:'call',
+      onClick:()=>{
+        console.log(formRef.current.getFieldsValue())
+      }
+    }
+  ]
+
+
 
   return (
     <PageHeaderWrapper>
@@ -34,25 +94,11 @@ const Call: FC<CallProps> = ({dispatch, callService, loading}) => {
         <Row gutter={24}>
           <Col lg={10} md={24}>
             <Card bordered={false} style={{marginBottom: 24}}>
+
+
+
               <Space style={{width: "100%"}} size="large" direction="vertical">
-                <Select placeholder="Service" style={{width: "100%"}}>
-                  {
-                    (() => {
-                      const {services} = callService
-                      const opts: JSX.Element[] = []
-                      services.forEach(s => {
-                        opts.push(<Option value={s.name}>{s.name}</Option>)
-                      })
-                      return opts;
-                    })()
-                  }
-                </Select>
-                <Select placeholder="Address" style={{width: "100%"}}>
-                </Select>
-                <Select placeholder="Endpoint" style={{width: "100%"}}>
-                </Select>
-                <Button>Call</Button>
-                <TextArea rows={13}></TextArea>
+                <Forms ref={formRef}  options={formOption()} />
               </Space>
             </Card>
           </Col>
