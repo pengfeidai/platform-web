@@ -38,9 +38,21 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
     return list
   },[services])
 
-  //console.log(serviceOptions)
+  console.log(callService)
 
+  const getName = (values:any):object=>{
+    let obj = {}
+    if(values){
+      values.forEach((item:any)=>{
+        obj[item.name] = ''
+        if(item.values){
+          obj[item.name] = getName(item.values)
+        }
 
+      })
+    }
+    return obj
+  }
 
 
   const formOption = ():object[]=>[
@@ -79,7 +91,11 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
       onChange:(val:any)=>{
         if(val){
           let node:any = endpointOpt.find((v:any)=>v.value===val)
-          formRef.current && formRef.current.setFieldsValue({request:JSON.stringify(node.request ? node.request :{} ,null,2)})
+          let request:object = {}
+          if(node.request && node.request.values && node.request.values.length>0){
+            request = getName(node.request.values)
+          }
+          formRef.current && formRef.current.setFieldsValue({request:JSON.stringify(request ,null,2)})
         }
 
       }
@@ -99,7 +115,7 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
           formRef.current.validateFields((validate:any)=>{
             console.log(validate)
               if(validate.errorFields) return
-              dispatch({type:'callService/callService',payload:{...validate,request:JSON.parse(validate.request)}})
+              dispatch({type:'callService/callServicer',payload:{...validate,request:JSON.parse(validate.request)}})
 
 
 
@@ -124,7 +140,7 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
           </Col>
           <Col lg={14} md={24}>
             <Card>
-              <TextArea rows={23} readOnly></TextArea>
+              <TextArea rows={23}  readOnly></TextArea>
             </Card>
           </Col>
         </Row>

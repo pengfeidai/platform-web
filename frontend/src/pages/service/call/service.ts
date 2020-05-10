@@ -13,7 +13,7 @@ export async function queryServices(params: Pagination) {
 }
 
 export async function callService(params: CallParam) {
-  const data = request('/platform/api/v1/b/call-service', {
+  const data = request('/platform/api/v1/b/rpc', {
     method: 'POST',
     data: {
       ...params,

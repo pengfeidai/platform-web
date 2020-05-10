@@ -56,7 +56,7 @@ const Model: ModelType = {
         payload: services,
       });
     },
-    * callService({payload}, {call, put}) {
+    * callServicer({payload}, {call, put}) {
       const response = yield call(callService, payload);
       yield put({
         type: 'callService',
