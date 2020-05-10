@@ -12,7 +12,8 @@ class Forms extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      options:props.options
+      options:props.options,
+      validateMessage:null
     }
     this.ref = React.createRef();
 
@@ -35,11 +36,27 @@ class Forms extends React.Component{
     this.ref.current.setFieldsValue(name, value);
   }
 
+  validateFields=(callback)=>{
+    //console.log(this.state.validateMessage)
+    //所有方法的验证状态都是异步
+    setTimeout(()=>{
+      if(this.state.validateMessage){
+        callback && callback(this.state.validateMessage)
+      }
+    },100)
+
+  }
+
+  onFinish = (val)=>this.setState({validateMessage:val})
+  onFinishFailed = (error)=>this.setState({validateMessage:error})
+
+
+
 
   render(){
     const {options, formOpt } = this.props
     function creatFormItem(item,index){
-      let {formType,name,label,...otherProps} = item
+      let {formType,name,label,rules,...otherProps} = item
       switch (formType) {
         case 'input' :
           return (
@@ -47,6 +64,7 @@ class Forms extends React.Component{
               key={index}
               label={label}
               name={name}
+              rules={rules}
             >
              <Input {...otherProps}/>
             </FormItem>
@@ -58,6 +76,7 @@ class Forms extends React.Component{
               key={index}
               label={label}
               name={name}
+              rules={rules}
             >
               <TextArea  {...otherProps}/>
             </FormItem>
@@ -69,6 +88,7 @@ class Forms extends React.Component{
               key={index}
               label={label}
               name={name}
+              rules={rules}
             >
               <Select {...otherProps}>
               </Select>
@@ -87,7 +107,7 @@ class Forms extends React.Component{
     }
 
     return (
-      <Form {...formOpt}  ref={this.ref}>
+      <Form {...formOpt} onFinish={(values)=>this.onFinish(values)} onFinishFailed={(error)=>this.onFinishFailed(error)}  ref={this.ref}>
         {
           options.length >0 && options.map((item,index)=> item.hasOwnProperty('hidden') && item.hidden() ? null : creatFormItem(item,index))
         }

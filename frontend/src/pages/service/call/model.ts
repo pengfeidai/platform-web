@@ -1,4 +1,4 @@
-import {Effect, Reducer, Subscription} from 'umi';
+import { Effect, Reducer, Subscription, Dispatch } from 'umi';
 import {Endpoint, Node, Service} from './data.d';
 import {callService, queryServices} from './service';
 
@@ -32,7 +32,7 @@ const Model: ModelType = {
   },
 
   subscriptions: {
-    setupHistory ({ dispatch, history }) {
+    setup ({ dispatch, history }):void {
       history.listen((location:any) => {
         if(location.pathname === '/service/call-service'){
           dispatch({

@@ -17,17 +17,23 @@ interface CallProps extends RouteChildrenProps {
   loading: boolean;
 }
 
+interface SelectOption {
+  value:string,
+  label:string
+  request?:string
+}
+
 
 
 const Call: FC<CallProps> = ({ dispatch ,callService }) => {
-  const [addOpt,setAddOpt]: Array<any> = useState([])
-  const [endpointOpt,setEndpointOpt]: Array<any> = useState([])
-  const { services }: any = callService
-  let formRef:object = useRef(null)
-  const serviceOptions: Array<any> = useMemo(()=>{
-    let list: Array<object> = []
+  const [addOpt,setAddOpt] = useState<SelectOption[]>([])
+  const [endpointOpt,setEndpointOpt] = useState<SelectOption[]>([])
+  const { services } = callService
+  let formRef = useRef<Forms | null>(null)
+  const serviceOptions = useMemo(():SelectOption[]=>{
+    let list: SelectOption[] = []
     if(services && services.length){
-      list = services.map((item:object)=>({value:item.name,label:item.name}))
+      list = services.map((item:any)=>({value:item.name,label:item.name}))
     }
     return list
   },[services])
@@ -37,19 +43,23 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
 
 
 
-  const formOption: any = ()=>[
+  const formOption = ():object[]=>[
     {
       formType:'select',
       name:'Service',
       options:serviceOptions,
       placeholder:'Service',
+      rules:[{ required: true, message: 'Please input Service!' }],
       onChange:(val:any)=>{
         if(val){
-          let selectItem: object = services.find((v:object)=>v.name===val)
-          let addOpt: Array<any> = selectItem.nodes.map((v:object)=>({value:v.address,label:v.address}))
-          let endpointOpt: Array<any> = selectItem.endpoints.map((v:object)=>({value:v.name,label:v.name,request:v.request}))
+          let selectItem: any = services.find((v:any)=>v.name===val)
+          let addOpt: SelectOption[] = selectItem.nodes.map((v:any)=>({value:v.address,label:v.address}))
+          let endpointOpt: SelectOption[] = selectItem.endpoints.map((v:any)=>({value:v.name,label:v.name,request:v.request}))
           setAddOpt(addOpt)
           setEndpointOpt(endpointOpt)
+          if(formRef.current){
+            formRef.current.setFieldsValue({Address:'',Endpoint:'',request:''})
+          }
         }
 
       }
@@ -65,10 +75,11 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
       name:'Endpoint',
       options:endpointOpt,
       placeholder:'Endpoint',
+      rules:[{ required: true, message: 'Please input Endpoint!' }],
       onChange:(val:any)=>{
         if(val){
-          let request:any = endpointOpt.find((v:object)=>v.value===val).request
-          formRef.current.setFieldsValue({request:'111'})
+          let node:any = endpointOpt.find((v:any)=>v.value===val)
+          formRef.current && formRef.current.setFieldsValue({request:JSON.stringify(node.request ? node.request :{} ,null,2)})
         }
 
       }
@@ -76,12 +87,24 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
     {
       formType:'textarea',
       name:'request',
+      rows:12,
+      rules:[{ required: true, message: 'Please input request!' }],
     },
     {
       formType:'button',
       label:'call',
+      htmlType:"submit",
       onClick:()=>{
-        console.log(formRef.current.getFieldsValue())
+        if(formRef.current){
+          formRef.current.validateFields((validate:any)=>{
+            console.log(validate)
+              if(validate.errorFields) return
+              dispatch({type:'callService/callService',payload:{...validate,request:JSON.parse(validate.request)}})
+
+
+
+          })
+        }
       }
     }
   ]
@@ -94,11 +117,8 @@ const Call: FC<CallProps> = ({ dispatch ,callService }) => {
         <Row gutter={24}>
           <Col lg={10} md={24}>
             <Card bordered={false} style={{marginBottom: 24}}>
-
-
-
               <Space style={{width: "100%"}} size="large" direction="vertical">
-                <Forms ref={formRef}  options={formOption()} />
+                <Forms formOpt={{className:'form'}} ref={formRef}  options={formOption()} />
               </Space>
             </Card>
           </Col>
